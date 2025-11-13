@@ -1,0 +1,32 @@
+# ==== Python básico ====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Builds / distribuições
+build/
+dist/
+*.egg-info/
+
+# ==== Virtualenv ====
+.venv/
+venv/
+env/
+ENV/
+
+# ==== Logs ====
+*.log
+
+# ==== IDE / Editor ====
+.vscode/
+.idea/
+*.code-workspace
+
+# ==== SO ====
+.DS_Store
+Thumbs.db
+
+# ==== Específico do projeto ====
+Debug/
+Debug/**/

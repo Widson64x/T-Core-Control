@@ -1,0 +1,8 @@
+flask
+pandas
+sqlalchemy
+psycopg2-binary
+python-dotenv
+openpyxl
+cachetools
+gunicorn  # Adicionado para produção
