@@ -30,3 +30,9 @@ Thumbs.db
 # ==== Específico do projeto ====
 Debug/
 Debug/**/
+Archives/
+Downloads/
+DRE_Rentabilidade_*.xlsx
+
+# Variáveis de ambiente
+.env
