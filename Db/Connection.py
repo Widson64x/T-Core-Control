@@ -12,7 +12,7 @@ HOST = os.getenv("DB_HOST", "localhost")
 PORT = os.getenv("DB_PORT", "5432")
 DATABASE = os.getenv("DB_NAME", "DRE_Database")
 USER = os.getenv("DB_USER", "postgres")
-PASSWORD = os.getenv("DB_PASSWORD", "luft%40123") # Mantenha a senha codificada
+PASSWORD = os.getenv("DB_PASSWORD") # Mantenha a senha codificada
 DRIVER = os.getenv("DB_DRIVER", "psycopg")
 DATABASE_URL = f"postgresql+{DRIVER}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
