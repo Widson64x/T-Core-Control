@@ -28,8 +28,8 @@ ENV/
 Thumbs.db
 
 # ==== Específico do projeto ====
-Debug/
-Debug/**/
+Tests/
+Tests/**/
 Archives/
 Downloads/
 DRE_Rentabilidade_*.xlsx

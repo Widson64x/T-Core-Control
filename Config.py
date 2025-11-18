@@ -8,7 +8,7 @@ BASE_PATH = r"C:\\Projetos\\DRE\\Relatórios\\DREs"
 CAMINHOS_ARQUIVOS = {
     "Volumes_Base": {
         "path": os.path.join(BASE_PATH, "Volumes - Base.xlsx"),
-        "columns": ["SITE", "CLIENTE", "DATAFIMPEDIDO", "CATEGORIAGRUPO", "VOLUMES"]
+        "columns": ["SITE", "CLIENTE", "DATAFIMPEDIDO", "CATEGORIAGRUPO", "VOLUMES", "DEPOSITANTE"]
     },
     "Faturamento": {
         "path": os.path.join(BASE_PATH, "Faturamento 2025.xlsx"),

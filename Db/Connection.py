@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from sqlalchemy import create_engine, types
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 from cachetools import cached, TTLCache
 
@@ -12,19 +12,17 @@ HOST = os.getenv("DB_HOST", "localhost")
 PORT = os.getenv("DB_PORT", "5432")
 DATABASE = os.getenv("DB_NAME", "DRE_Database")
 USER = os.getenv("DB_USER", "postgres")
-PASSWORD = os.getenv("DB_PASSWORD") # Mantenha a senha codificada
+PASSWORD = os.getenv("DB_PASSWORD") 
 DRIVER = os.getenv("DB_DRIVER", "psycopg")
 DATABASE_URL = f"postgresql+{DRIVER}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 # --- Configuração do Cache ---
-# Cache na memória com 1 item, expira em 1 hora (3600 segundos)
 cache = TTLCache(maxsize=1, ttl=3600)
 
-@cached(cache) # Aplica o cache
+@cached(cache) 
 def Carregar_Mapeamento_Banco():
     """
-    Carrega TODAS as tabelas De-Para do PostgreSQL e as armazena
-    em um dicionário cacheado.
+    Carrega TODAS as tabelas De-Para do PostgreSQL.
     """
     print("ATENÇÃO: Lendo dados do banco de dados (execução de cache)...")
     
@@ -36,7 +34,6 @@ def Carregar_Mapeamento_Banco():
         
     mapeamentos = {}
     
-    # Adicionadas as aspas duplas para nomes de tabela case-sensitive
     mapa_tabelas = {
         "DRE_De_Para_Item_Conta": '"Tb_DRE_De_Para_Item_Conta"',
         "DRE_De_Para_Centro_Custo": '"Tb_DRE_De_Para_Centro_Custo"',
@@ -47,30 +44,47 @@ def Carregar_Mapeamento_Banco():
         "MO_Ade_Temp_Filial_UF": '"Tb_MO_Ade_Temp_Filial_UF"',
         "MO_Ade_Temp_Cli_Grupo": '"Tb_MO_Ade_Temp_Cli_Grupo"',
         "Item_De_Para_Filial_Depreciacao": '"Tb_Item_De_Para_Filial_Depreciacao"',
-        "De_Para_Grupos_Ocupacao": '"Tb_De_Para_Grupos_Ocupacao"'
+        "De_Para_Grupos_Ocupacao": '"Tb_De_Para_Grupos_Ocupacao"',
+        "Volumes_De_Para_Abreviacao3": '"Tb_Volumes_De_Para_Abreviacao3"'
     }
 
-    nome_tabela_sql = "N/A (Erro na conexão inicial)"
+    nome_tabela_sql = "N/A"
     try:
         with engine.connect() as conn:
             for chave_esperada, nome_tabela_sql in mapa_tabelas.items():
                 print(f"Carregando tabela: {nome_tabela_sql}...")
                 mapeamentos[chave_esperada] = pd.read_sql(f"SELECT * FROM {nome_tabela_sql}", conn)
         
-        print(f" -> {len(mapeamentos)} tabelas de mapeamento carregadas com sucesso do banco.")
+        print(f" -> {len(mapeamentos)} tabelas carregadas.")
         return mapeamentos
         
     except Exception as e:
-        print(f"ERRO ao carregar mapeamentos da tabela {nome_tabela_sql}: {e}")
-        raise Exception(f"Erro ao carregar dados do banco: {e}. A tabela '{nome_tabela_sql}' existe?") from e
-    
+        print(f"ERRO ao carregar mapeamentos: {e}")
+        raise Exception(f"Erro ao carregar dados do banco: {e}") from e
+
+def Atualizar_Sigla_Depositante(nome_depositante, nova_sigla):
+    """
+    NOVO: Atualiza a sigla (area) na tabela 2 se encontrar um depositante com cadastro incompleto.
+    """
+    try:
+        engine = create_engine(DATABASE_URL)
+        # SQL de Update seguro
+        sql = text("""
+            UPDATE "Tb_Volumes_De_Para_Abreviacao2"
+            SET area = :sigla
+            WHERE nome = :nome
+        """)
+        
+        with engine.begin() as conn:
+            conn.execute(sql, {"sigla": nova_sigla, "nome": nome_depositante})
+            
+        print(f"   [DB WRITE] Sucesso! Atualizado no Banco: '{nome_depositante}' -> '{nova_sigla}'")
+        return True
+    except Exception as e:
+        print(f"   !!! [DB ERROR] Falha ao atualizar sigla no banco: {e}")
+        return False
+
 # Bloco de teste
 if __name__ == "__main__":
-    print("--- INICIANDO TESTE DE CONEXÃO (Connection.py) ---")
-    mapeamentos = Carregar_Mapeamento_Banco()
-    if mapeamentos:
-        print("\n--- SUCESSO! ---")
-        print(f"Banco de dados conectado e {len(mapeamentos)} tabelas carregadas!")
-    else:
-        print("\n--- FALHA! ---")
-    print("--- TESTE CONCLUÍDO ---")
+    print("--- Teste Conexão ---")
+    Carregar_Mapeamento_Banco()
